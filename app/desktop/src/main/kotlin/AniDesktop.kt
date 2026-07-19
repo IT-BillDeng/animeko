@@ -22,6 +22,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.InternalComposeUiApi
@@ -493,6 +494,8 @@ object AniDesktop {
             )
 
             val uiSettings by settingsRepository.uiSettings.flow.collectAsState(UISettings.Default)
+            // 窗口置顶为运行时状态, 不持久化, 关闭应用后自动清除
+            val alwaysOnTopState = remember { mutableStateOf(false) }
             val trayState = rememberAniTrayState()
             val appIcon = painterResource(Res.drawable.a_round)
 
@@ -514,6 +517,7 @@ object AniDesktop {
                 state = windowState,
                 title = "Ani",
                 icon = appIcon,
+                alwaysOnTop = alwaysOnTopState.value,
             ) {
                 // In dev mode this enables hot reload,
                 // In release mode this just executes the content
@@ -558,6 +562,7 @@ object AniDesktop {
                             platform = platform,
                             windowState = windowState,
                             layoutHitTestOwner = layoutHitTestOwner,
+                            alwaysOnTopState = alwaysOnTopState,
                         )
                     },
                     LocalOnBackPressedDispatcherOwner provides backPressedDispatcherOwner,
